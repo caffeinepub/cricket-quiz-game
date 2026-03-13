@@ -1,0 +1,275 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200;12..96,400;12..96,600;12..96,800&family=Satoshi:wght@300;400;500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Kuzo Game Hub — Neon Dark Gaming */
+    --background: 0.07 0.02 265;
+    --foreground: 0.95 0.01 265;
+    --card: 0.11 0.03 265;
+    --card-foreground: 0.95 0.01 265;
+    --popover: 0.11 0.03 265;
+    --popover-foreground: 0.95 0.01 265;
+    /* Neon Purple primary */
+    --primary: 0.65 0.28 300;
+    --primary-foreground: 0.07 0.02 265;
+    /* Neon Cyan secondary */
+    --secondary: 0.14 0.04 265;
+    --secondary-foreground: 0.85 0.02 265;
+    --muted: 0.13 0.03 265;
+    --muted-foreground: 0.55 0.05 265;
+    /* Neon cyan accent */
+    --accent: 0.78 0.22 200;
+    --accent-foreground: 0.07 0.02 265;
+    --destructive: 0.6 0.24 25;
+    --destructive-foreground: 0.98 0.005 25;
+    --border: 0.18 0.05 265;
+    --input: 0.14 0.04 265;
+    --ring: 0.65 0.28 300;
+    --radius: 0.75rem;
+    --success: 0.72 0.22 145;
+    --success-foreground: 0.07 0.02 265;
+    --warning: 0.75 0.22 60;
+    --warning-foreground: 0.07 0.02 265;
+    --chart-1: 0.65 0.28 300;
+    --chart-2: 0.78 0.22 200;
+    --chart-3: 0.72 0.22 145;
+    --chart-4: 0.75 0.22 60;
+    --chart-5: 0.6 0.24 25;
+    --sidebar: 0.09 0.025 265;
+    --sidebar-foreground: 0.95 0.01 265;
+    --sidebar-primary: 0.65 0.28 300;
+    --sidebar-primary-foreground: 0.07 0.02 265;
+    --sidebar-accent: 0.13 0.03 265;
+    --sidebar-accent-foreground: 0.95 0.01 265;
+    --sidebar-border: 0.18 0.05 265;
+    --sidebar-ring: 0.65 0.28 300;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Satoshi", "Plus Jakarta Sans", sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+}
+
+/* Dark grid bg */
+.game-bg {
+  background-color: oklch(var(--background));
+  background-image: linear-gradient(
+      oklch(0.65 0.28 300 / 0.04) 1px,
+      transparent 1px
+    ), linear-gradient(90deg, oklch(0.65 0.28 300 / 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Neon glow effects */
+.glow-purple {
+  box-shadow: 0 0 20px oklch(0.65 0.28 300 / 0.5), 0 0 60px
+    oklch(0.65 0.28 300 / 0.2);
+}
+.glow-cyan {
+  box-shadow: 0 0 20px oklch(0.78 0.22 200 / 0.5), 0 0 60px
+    oklch(0.78 0.22 200 / 0.2);
+}
+.glow-green {
+  box-shadow: 0 0 20px oklch(0.72 0.22 145 / 0.5), 0 0 60px
+    oklch(0.72 0.22 145 / 0.2);
+}
+.glow-orange {
+  box-shadow: 0 0 20px oklch(0.75 0.22 60 / 0.5), 0 0 60px
+    oklch(0.75 0.22 60 / 0.2);
+}
+
+/* Card hover glow */
+.game-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  border: 1px solid oklch(0.18 0.05 265);
+}
+.game-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: oklch(0.65 0.28 300 / 0.6);
+  box-shadow: 0 0 30px oklch(0.65 0.28 300 / 0.3), 0 8px 32px oklch(0 0 0 / 0.4);
+}
+
+/* Animated gradient hero */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.hero-gradient {
+  background: linear-gradient(
+    135deg,
+    oklch(0.07 0.02 265) 0%,
+    oklch(0.12 0.06 300) 25%,
+    oklch(0.1 0.05 220) 50%,
+    oklch(0.12 0.06 300) 75%,
+    oklch(0.07 0.02 265) 100%
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Neon text effects */
+.neon-text-purple {
+  color: oklch(0.75 0.28 300);
+  text-shadow: 0 0 20px oklch(0.65 0.28 300 / 0.8), 0 0 40px
+    oklch(0.65 0.28 300 / 0.4);
+}
+.neon-text-cyan {
+  color: oklch(0.85 0.22 200);
+  text-shadow: 0 0 20px oklch(0.78 0.22 200 / 0.8), 0 0 40px
+    oklch(0.78 0.22 200 / 0.4);
+}
+.neon-text-green {
+  color: oklch(0.78 0.22 145);
+  text-shadow: 0 0 20px oklch(0.72 0.22 145 / 0.8);
+}
+
+/* Fade-in animations */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px oklch(0.65 0.28 300 / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px oklch(0.65 0.28 300 / 0.8), 0 0 60px
+      oklch(0.65 0.28 300 / 0.3);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.animate-fade-in {
+  animation: fade-in 0.4s ease forwards;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.stagger-1 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+.stagger-2 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+.stagger-3 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+.stagger-4 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+.stagger-5 {
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+/* Scanline overlay */
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    oklch(0 0 0 / 0.03) 2px,
+    oklch(0 0 0 / 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Glass card */
+.glass {
+  background: oklch(0.13 0.04 265 / 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid oklch(0.25 0.07 265 / 0.4);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: oklch(0.09 0.02 265);
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.25 0.08 300);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.5 0.2 300);
+}
+
+/* Canvas container */
+.canvas-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid oklch(0.65 0.28 300 / 0.4);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Progress bar neon */
+.health-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: oklch(0.13 0.03 265);
+  overflow: hidden;
+}
+.health-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, oklch(0.72 0.22 145), oklch(0.78 0.22 145));
+  box-shadow: 0 0 8px oklch(0.72 0.22 145 / 0.6);
+  transition: width 0.3s ease;
+}
