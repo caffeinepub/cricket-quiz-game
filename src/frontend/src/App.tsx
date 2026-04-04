@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import ApiKeyBanner from "./components/wallnova/ApiKeyBanner";
+import AuthModal from "./components/wallnova/AuthModal";
 import Footer from "./components/wallnova/Footer";
 import Hero from "./components/wallnova/Hero";
 import Navbar from "./components/wallnova/Navbar";
@@ -22,6 +23,7 @@ import {
 import type { AppView, PexelsPhoto, PexelsResponse } from "./types/pexels";
 
 const queryClient = new QueryClient();
+const STORAGE_KEY = "wallnova_user_email";
 
 function WallNovaApp() {
   const [currentView, setCurrentView] = useState<AppView>("home");
@@ -38,7 +40,23 @@ function WallNovaApp() {
   const [selectedPhoto, setSelectedPhoto] = useState<PexelsPhoto | null>(null);
   const [navSearch, setNavSearch] = useState("");
 
+  // Auth state
+  const [userEmail, setUserEmail] = useState<string | null>(() =>
+    localStorage.getItem(STORAGE_KEY),
+  );
+  const [authOpen, setAuthOpen] = useState(false);
+
   const abortRef = useRef<AbortController | null>(null);
+
+  const handleLogin = useCallback((email: string) => {
+    setUserEmail(email);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setUserEmail(null);
+    toast("Logged out successfully");
+  }, []);
 
   // Fetch photos
   const fetchPhotos = useCallback(
@@ -151,6 +169,9 @@ function WallNovaApp() {
         navSearch={navSearch}
         onNavSearch={setNavSearch}
         onNavSearchSubmit={handleNavSearchSubmit}
+        userEmail={userEmail}
+        onOpenAuth={() => setAuthOpen(true)}
+        onLogout={handleLogout}
       />
 
       {IS_PLACEHOLDER_KEY && <ApiKeyBanner />}
@@ -211,6 +232,12 @@ function WallNovaApp() {
           onClose={() => setSelectedPhoto(null)}
         />
       )}
+
+      <AuthModal
+        open={authOpen}
+        onOpenChange={setAuthOpen}
+        onLogin={handleLogin}
+      />
 
       <Toaster position="top-right" richColors />
     </div>

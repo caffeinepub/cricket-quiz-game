@@ -28,22 +28,44 @@ export interface SubjectResult {
   'maxMarks' : bigint,
 }
 export type Time = bigint;
+export interface TransformationInput {
+  'context' : Uint8Array,
+  'response' : http_request_result,
+}
+export interface TransformationOutput {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
+export interface UserInfo { 'principal' : Principal, 'email' : string }
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface http_header { 'value' : string, 'name' : string }
+export interface http_request_result {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addOrUpdateResult' : ActorMethod<[Result], undefined>,
+  'askGemini' : ActorMethod<[string], string>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deleteResult' : ActorMethod<[string], undefined>,
   'getAllResults' : ActorMethod<[[] | [string]], Array<Result>>,
+  'getAllUsers' : ActorMethod<[], Array<UserInfo>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getMyEmail' : ActorMethod<[], [] | [string]>,
   'getResultByRollNumber' : ActorMethod<[string], [] | [Result]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'loginUser' : ActorMethod<[string, string], boolean>,
+  'registerUser' : ActorMethod<[string, string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

@@ -89,10 +89,20 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
 export interface SubjectResult {
     subjectName: string;
     marksObtained: bigint;
     maxMarks: bigint;
+}
+export interface TransformationOutput {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
 }
 export type Time = bigint;
 export interface Result {
@@ -107,7 +117,19 @@ export interface Result {
     percentage: number;
     passed: boolean;
 }
+export interface TransformationInput {
+    context: Uint8Array;
+    response: http_request_result;
+}
+export interface UserInfo {
+    principal: Principal;
+    email: string;
+}
 export interface UserProfile {
+    name: string;
+}
+export interface http_header {
+    value: string;
     name: string;
 }
 export enum UserRole {
@@ -118,15 +140,21 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     addOrUpdateResult(result: Result): Promise<void>;
+    askGemini(question: string): Promise<string>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteResult(rollNumber: string): Promise<void>;
     getAllResults(searchTerm: string | null): Promise<Array<Result>>;
+    getAllUsers(): Promise<Array<UserInfo>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getMyEmail(): Promise<string | null>;
     getResultByRollNumber(rollNumber: string): Promise<Result | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    loginUser(email: string, passwordHash: string): Promise<boolean>;
+    registerUser(email: string, passwordHash: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    transform(input: TransformationInput): Promise<TransformationOutput>;
 }
 import type { Result as _Result, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -156,6 +184,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.addOrUpdateResult(arg0);
+            return result;
+        }
+    }
+    async askGemini(arg0: string): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.askGemini(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.askGemini(arg0);
             return result;
         }
     }
@@ -201,6 +243,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getAllUsers(): Promise<Array<UserInfo>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllUsers();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllUsers();
+            return result;
+        }
+    }
     async getCallerUserProfile(): Promise<UserProfile | null> {
         if (this.processError) {
             try {
@@ -229,18 +285,32 @@ export class Backend implements backendInterface {
             return from_candid_UserRole_n5(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getResultByRollNumber(arg0: string): Promise<Result | null> {
+    async getMyEmail(): Promise<string | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.getResultByRollNumber(arg0);
+                const result = await this.actor.getMyEmail();
                 return from_candid_opt_n7(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getResultByRollNumber(arg0);
+            const result = await this.actor.getMyEmail();
             return from_candid_opt_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getResultByRollNumber(arg0: string): Promise<Result | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getResultByRollNumber(arg0);
+                return from_candid_opt_n8(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getResultByRollNumber(arg0);
+            return from_candid_opt_n8(this._uploadFile, this._downloadFile, result);
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
@@ -271,6 +341,34 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async loginUser(arg0: string, arg1: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.loginUser(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.loginUser(arg0, arg1);
+            return result;
+        }
+    }
+    async registerUser(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.registerUser(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.registerUser(arg0, arg1);
+            return result;
+        }
+    }
     async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
         if (this.processError) {
             try {
@@ -285,6 +383,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async transform(arg0: TransformationInput): Promise<TransformationOutput> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.transform(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.transform(arg0);
+            return result;
+        }
+    }
 }
 function from_candid_UserRole_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n6(_uploadFile, _downloadFile, value);
@@ -292,7 +404,10 @@ function from_candid_UserRole_n5(_uploadFile: (file: ExternalBlob) => Promise<Ui
 function from_candid_opt_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Result]): Result | null {
+function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Result]): Result | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_variant_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {

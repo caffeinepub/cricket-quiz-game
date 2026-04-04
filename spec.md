@@ -1,46 +1,27 @@
 # WallNova HD
 
 ## Current State
-New project -- no existing code.
+WallNova HD is a wallpaper download site using Pexels API. Features: dark UI, grid layout, search, categories, favorites (localStorage), HD download, wallpaper modal. The backend has authorization component (role-based access control) and http-outcalls. The app currently has no login/signup UI -- it's a purely frontend experience with no user accounts.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Full wallpaper browsing website called "WallNova HD"
-- Pexels API integration (frontend HTTP outcalls) with placeholder API key
-- Homepage with hero section, search bar, category filters
-- Masonry/Pinterest-style grid layout
-- Wallpaper preview modal with HD download button
-- Favorites system using localStorage (save/remove)
-- Load More pagination
-- Contact section with support number: 9241763753
-- Footer with category links and about section
-- Dark neon UI (black background + neon gradients)
+- Login / Signup page with email + password (using the existing authorization component)
+- Navbar login/logout button -- shows user's email when logged in
+- Protected favorites: favorites still work for guests but show a prompt to sign in for saving across devices
+- Support section (phone number: 9241763753) in the footer or a dedicated support page/modal
 
 ### Modify
-N/A
+- Footer: Add support contact number 9241763753
+- Navbar: Add Login/Signup button, show logged-in state
+- Backend: Add user registration (email+password stored in canister), login via password check, logout
 
 ### Remove
-N/A
+- Nothing removed
 
 ## Implementation Plan
-
-### Backend
-- Minimal Motoko backend (no backend logic needed -- all Pexels API calls happen from frontend)
-- Simple actor with a greeting or health check
-
-### Frontend
-- `App.tsx`: Main app with routing/state
-- `components/Hero.tsx`: Hero section with search bar
-- `components/Gallery.tsx`: Masonry grid of wallpapers fetched from Pexels API
-- `components/WallpaperCard.tsx`: Individual card with hover effects, favorite button
-- `components/Modal.tsx`: Full-screen preview with download button and resolution display
-- `components/CategoryFilter.tsx`: Category pills (Nature, Cars, Anime, Gaming, Space, Technology, 4K, Mobile)
-- `components/Favorites.tsx`: Favorites page/section using localStorage
-- `components/Footer.tsx`: Links and about section
-- `hooks/usePexels.ts`: Custom hook for Pexels API calls (search, curated, pagination)
-- `hooks/useFavorites.ts`: Custom hook for localStorage favorites management
-- Pexels API key stored as a constant with placeholder `YOUR_PEXELS_API_KEY`
-- Categories map to Pexels search queries
-- Lazy loading via IntersectionObserver or native loading="lazy"
-- Mobile-first responsive design
+1. Update backend (main.mo) to add: user registration with email+password (hashed), login function, getLoggedInUser query. Use existing authorization component.
+2. Add frontend Auth page (Login + Signup tabs) as a modal or separate route.
+3. Update Navbar to show Login button (opens auth modal) or logged-in user email with logout.
+4. Update Footer to show support number 9241763753.
+5. Keep all existing wallpaper features (search, categories, favorites, download) unchanged.

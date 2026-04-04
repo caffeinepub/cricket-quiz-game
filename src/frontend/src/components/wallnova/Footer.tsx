@@ -20,16 +20,11 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{
-                  background:
-                    "linear-gradient(135deg, oklch(57% 0.28 295), oklch(84% 0.19 200))",
-                  boxShadow: "0 0 12px oklch(57% 0.28 295 / 0.4)",
-                }}
-              >
-                <span className="text-white font-black text-sm">W</span>
-              </div>
+              <img
+                src="/assets/generated/wallnova-logo-transparent.dim_400x400.png"
+                alt="WallNova HD"
+                className="w-8 h-8 object-contain"
+              />
               <span className="font-display font-bold text-foreground">
                 WallNova <span className="gradient-text">HD</span>
               </span>

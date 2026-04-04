@@ -1,11 +1,12 @@
 import type { PexelsResponse } from "../types/pexels";
 
-// Replace this with your actual Pexels API key
-export const PEXELS_API_KEY = "YOUR_PEXELS_API_KEY";
+// Pexels API key
+export const PEXELS_API_KEY =
+  "HcvU38MkNtHcnGTFyW6nzCxyv9b9i4AYuOyV8dxZxSu9WB6B4BJ10ZJa";
 
 const BASE_URL = "https://api.pexels.com/v1";
 
-export const IS_PLACEHOLDER_KEY = PEXELS_API_KEY === "YOUR_PEXELS_API_KEY";
+export const IS_PLACEHOLDER_KEY = false;
 
 async function pexelsFetch(url: string): Promise<PexelsResponse> {
   const response = await fetch(url, {

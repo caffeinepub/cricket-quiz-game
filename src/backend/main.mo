@@ -5,13 +5,18 @@ import Float "mo:core/Float";
 import Principal "mo:core/Principal";
 import Time "mo:core/Time";
 import Iter "mo:core/Iter";
+import Outcall "http-outcalls/outcall";
+import Migration "migration";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
-import Nat "mo:core/Nat";
 import Runtime "mo:core/Runtime";
-import Outcall "http-outcalls/outcall";
+import Nat "mo:core/Nat";
 
+(with migration = Migration.run)
 actor {
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
+
   type SubjectResult = {
     subjectName : Text;
     marksObtained : Nat;
@@ -32,15 +37,22 @@ actor {
   };
 
   let results = Map.empty<Text, Result>();
+  let userProfiles = Map.empty<Principal, UserProfile>();
+  let users = Map.empty<Principal, User>();
 
   public type UserProfile = {
     name : Text;
   };
 
-  let userProfiles = Map.empty<Principal, UserProfile>();
+  public type User = {
+    email : Text;
+    passwordHash : Text;
+  };
 
-  let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState);
+  public type UserInfo = {
+    principal : Principal;
+    email : Text;
+  };
 
   func calculatePercentage(marks : Nat, total : Nat) : Float {
     if (total == 0) { 0.0 } else {
@@ -68,21 +80,17 @@ actor {
     percentage >= 40.0;
   };
 
-  // HTTP transform
-  public query func transform(input : Outcall.TransformationInput) : async Outcall.TransformationOutput {
+  public query ({ caller }) func transform(input : Outcall.TransformationInput) : async Outcall.TransformationOutput {
     Outcall.transform(input);
   };
 
-  // Helper: extract value after a JSON key
   func extractJsonString(json : Text, key : Text) : ?Text {
     let marker = "\"" # key # "\":\"";
     let markerSpace = "\"" # key # "\": \"";
-    // Try without space
     let parts = json.split(#text marker);
     ignore parts.next();
     switch (parts.next()) {
       case (?seg) {
-        // unescape \n and grab until closing quote
         let ans = seg.split(#text "\"").next();
         switch (ans) {
           case (?a) { if (a.size() > 0) { return ?a } };
@@ -91,7 +99,6 @@ actor {
       };
       case (null) {};
     };
-    // Try with space
     let parts2 = json.split(#text markerSpace);
     ignore parts2.next();
     switch (parts2.next()) {
@@ -106,12 +113,14 @@ actor {
     null;
   };
 
-  // Gemini 1.5 Flash via RapidAPI
-  public func askGemini(question : Text) : async Text {
+  public shared ({ caller }) func askGemini(question : Text) : async Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can use AI features");
+    };
     let rapidApiKey = "5a96739290mshfe8b07bc59dab09p1fb832jsnc8c462b28a25";
     let url = "https://gemini-1-5-flash.p.rapidapi.com/";
     let systemMsg = "You are Kuzo AI. Answer directly and briefly. For math give only the result. For capitals just say the city name. For facts give 1-2 sentences. If unknown say: I don't have enough information to answer this. Do not repeat the question.";
-    let body = "{\"model\":\"gemini-1.5-flash\",\"messages\":[{\"role\":\"user\",\"content\":\"" # systemMsg # " Question: " # question # "\"}]}";
+    let body = "{\"model\":\"gemini-1-5-flash\",\"messages\":[{\"role\":\"user\",\"content\":\"" # systemMsg # " Question: " # question # "\"}]}";
     try {
       let response = await Outcall.httpPostRequest(
         url,
@@ -123,7 +132,6 @@ actor {
         body,
         transform,
       );
-      // Try common response keys: "result", "content", "text", "response", "answer"
       let keys = ["result", "content", "text", "response", "answer"];
       var found : ?Text = null;
       for (k in keys.vals()) {
@@ -134,7 +142,6 @@ actor {
       switch (found) {
         case (?ans) { ans };
         case (null) {
-          // Try to extract from choices[0].message.content pattern
           let choicesMarker = "\"content\":\"";
           let cp = response.split(#text choicesMarker);
           ignore cp.next();
@@ -154,29 +161,10 @@ actor {
     };
   };
 
-  // User Profile Functions
-  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access profiles");
-    };
-    userProfiles.get(caller);
-  };
-
-  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
-    };
-    userProfiles.get(user);
-  };
-
-  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
-    };
-    userProfiles.add(caller, profile);
-  };
-
   public query ({ caller }) func getResultByRollNumber(rollNumber : Text) : async ?Result {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view exam results");
+    };
     results.get(rollNumber);
   };
 
@@ -217,43 +205,85 @@ actor {
   };
 
   system func preupgrade() { };
-  system func postupgrade() {
-    let initialResults = [
-      {
-        rollNumber = "1001";
-        studentName = "Alice Johnson";
-        examName = "Midterm 2024";
-        subjects = [
-          { subjectName = "Math"; marksObtained = 85; maxMarks = 100 },
-          { subjectName = "English"; marksObtained = 78; maxMarks = 100 },
-          { subjectName = "Science"; marksObtained = 92; maxMarks = 100 },
-        ];
-        totalMarks = 300;
-        obtainedMarks = 255;
-        percentage = calculatePercentage(255, 300);
-        grade = determineGrade(85.0);
-        passed = hasPassed(85.0);
-        timestamp = Time.now();
-      },
-      {
-        rollNumber = "1002";
-        studentName = "Bob Smith";
-        examName = "Midterm 2024";
-        subjects = [
-          { subjectName = "Math"; marksObtained = 62; maxMarks = 100 },
-          { subjectName = "English"; marksObtained = 55; maxMarks = 100 },
-          { subjectName = "Science"; marksObtained = 70; maxMarks = 100 },
-        ];
-        totalMarks = 300;
-        obtainedMarks = 187;
-        percentage = calculatePercentage(187, 300);
-        grade = determineGrade(62.33);
-        passed = hasPassed(62.33);
-        timestamp = Time.now();
-      },
-    ];
-    for (result in initialResults.values()) {
-      results.add(result.rollNumber, result);
+  system func postupgrade() { };
+
+  // User Profile Functions
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can access profiles");
     };
+    userProfiles.get(caller);
+  };
+
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
+    };
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.add(caller, profile);
+  };
+
+  // User registration - public, no auth required (guests can register)
+  public shared ({ caller }) func registerUser(email : Text, passwordHash : Text) : async () {
+    if (email.size() < 3) {
+      Runtime.trap("Email too short. Please provide at least 3 characters.");
+    };
+
+    let emailExists = users.values().any(
+      func(u) {
+        u.email == email;
+      }
+    );
+    if (emailExists) {
+      Runtime.trap("Email address already taken. Please choose a different one.");
+    };
+
+    let newUser = {
+      email;
+      passwordHash;
+    };
+    users.add(caller, newUser);
+  };
+
+  // Login check - public, no auth required (authentication function)
+  public shared ({ caller }) func loginUser(email : Text, passwordHash : Text) : async Bool {
+    let userOpt = users.values().find(
+      func(u) {
+        u.email == email and u.passwordHash == passwordHash;
+      }
+    );
+    switch (userOpt) {
+      case (?_user) { true };
+      case (null) { false };
+    };
+  };
+
+  // Get current user's email - requires user role
+  public query ({ caller }) func getMyEmail() : async ?Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can access their email");
+    };
+    switch (users.get(caller)) {
+      case (?user) { ?user.email };
+      case (null) { null };
+    };
+  };
+
+  // Admin-only: Get all registered users
+  public query ({ caller }) func getAllUsers() : async [UserInfo] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can view all users");
+    };
+    users.toArray().map(
+      func((principal, user)) {
+        { principal; email = user.email };
+      }
+    );
   };
 };
