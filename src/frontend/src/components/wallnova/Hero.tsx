@@ -13,7 +13,26 @@ const CATEGORIES: Category[] = [
   { label: "Mobile", query: "mobile wallpaper" },
 ];
 
-export { CATEGORIES };
+const INDIAN_CELEBRITIES: Category[] = [
+  { label: "Virat Kohli", query: "virat kohli cricket" },
+  { label: "MS Dhoni", query: "ms dhoni cricket" },
+  { label: "Rohit Sharma", query: "rohit sharma cricket" },
+  { label: "Sachin Tendulkar", query: "sachin tendulkar cricket" },
+  { label: "Mukesh Ambani", query: "mukesh ambani india" },
+  { label: "Shah Rukh Khan", query: "shah rukh khan bollywood" },
+  { label: "Salman Khan", query: "salman khan bollywood" },
+  { label: "Amitabh Bachchan", query: "amitabh bachchan bollywood" },
+  { label: "Narendra Modi", query: "narendra modi india" },
+  { label: "Hardik Pandya", query: "hardik pandya cricket" },
+  { label: "KL Rahul", query: "kl rahul cricket" },
+  { label: "Jasprit Bumrah", query: "jasprit bumrah cricket" },
+  { label: "Suryakumar Yadav", query: "suryakumar yadav cricket" },
+  { label: "Deepika Padukone", query: "deepika padukone bollywood" },
+  { label: "Priyanka Chopra", query: "priyanka chopra bollywood" },
+  { label: "Ratan Tata", query: "ratan tata india" },
+];
+
+export { CATEGORIES, INDIAN_CELEBRITIES };
 
 interface HeroProps {
   activeCategory: string;
@@ -27,6 +46,7 @@ export default function Hero({
   onSearch,
 }: HeroProps) {
   const [query, setQuery] = useState("");
+  const [showCelebs, setShowCelebs] = useState(false);
 
   const handleSearch = useCallback(() => {
     if (query.trim()) {
@@ -39,6 +59,10 @@ export default function Hero({
       if (e.key === "Enter") handleSearch();
     },
     [handleSearch],
+  );
+
+  const isCelebActive = INDIAN_CELEBRITIES.some(
+    (c) => c.query === activeCategory,
   );
 
   return (
@@ -84,7 +108,7 @@ export default function Hero({
 
         <p className="text-muted-foreground text-base sm:text-lg mb-8 animate-fade-up stagger-3">
           Free high-resolution wallpapers for desktop & mobile. Nature, Space,
-          Gaming & more.
+          Gaming, Indian Celebrities & more.
         </p>
 
         {/* Search bar */}
@@ -93,7 +117,7 @@ export default function Hero({
             <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <input
               type="text"
-              placeholder="Search cars, anime, space, nature..."
+              placeholder="Search Virat Kohli, Dhoni, nature, space..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -121,7 +145,10 @@ export default function Hero({
           <button
             type="button"
             className={`category-chip ${activeCategory === "" ? "active" : ""}`}
-            onClick={() => onCategoryChange("")}
+            onClick={() => {
+              onCategoryChange("");
+              setShowCelebs(false);
+            }}
             data-ocid="hero.all.tab"
           >
             All
@@ -133,13 +160,91 @@ export default function Hero({
               className={`category-chip ${
                 activeCategory === cat.query ? "active" : ""
               }`}
-              onClick={() => onCategoryChange(cat.query)}
+              onClick={() => {
+                onCategoryChange(cat.query);
+                setShowCelebs(false);
+              }}
               data-ocid={`hero.${cat.label.toLowerCase()}.tab`}
             >
               {cat.label}
             </button>
           ))}
+
+          {/* Indian Celebrities toggle button */}
+          <button
+            type="button"
+            className="category-chip"
+            style={{
+              background:
+                isCelebActive || showCelebs
+                  ? "linear-gradient(135deg, oklch(70% 0.22 45 / 0.25), oklch(70% 0.22 45 / 0.15))"
+                  : undefined,
+              borderColor:
+                isCelebActive || showCelebs
+                  ? "oklch(70% 0.22 45 / 0.7)"
+                  : undefined,
+              color:
+                isCelebActive || showCelebs ? "oklch(85% 0.18 45)" : undefined,
+            }}
+            onClick={() => setShowCelebs((v) => !v)}
+            data-ocid="hero.indian_celebs.tab"
+          >
+            🇮🇳 Indian Stars
+          </button>
         </div>
+
+        {/* Indian Celebrities section */}
+        {showCelebs && (
+          <div
+            className="mt-5 animate-fade-up"
+            style={{
+              background: "oklch(12% 0.015 260)",
+              border: "1px solid oklch(70% 0.22 45 / 0.25)",
+              borderRadius: "16px",
+              padding: "16px",
+            }}
+          >
+            <p
+              className="text-xs font-semibold mb-3 text-left"
+              style={{ color: "oklch(85% 0.18 45)" }}
+            >
+              🏏 Cricketers & Celebrities
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {INDIAN_CELEBRITIES.map((celeb) => (
+                <button
+                  key={celeb.label}
+                  type="button"
+                  onClick={() => {
+                    onCategoryChange(celeb.query);
+                  }}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150"
+                  style={{
+                    background:
+                      activeCategory === celeb.query
+                        ? "linear-gradient(135deg, oklch(70% 0.22 45 / 0.35), oklch(70% 0.22 45 / 0.2))"
+                        : "oklch(18% 0.015 260)",
+                    border:
+                      activeCategory === celeb.query
+                        ? "1px solid oklch(70% 0.22 45 / 0.8)"
+                        : "1px solid oklch(30% 0.015 260)",
+                    color:
+                      activeCategory === celeb.query
+                        ? "oklch(90% 0.18 45)"
+                        : "oklch(65% 0.01 260)",
+                    boxShadow:
+                      activeCategory === celeb.query
+                        ? "0 0 10px oklch(70% 0.22 45 / 0.3)"
+                        : "none",
+                  }}
+                  data-ocid={`hero.celeb.${celeb.label.toLowerCase().replace(/ /g, "_")}.tab`}
+                >
+                  {celeb.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
