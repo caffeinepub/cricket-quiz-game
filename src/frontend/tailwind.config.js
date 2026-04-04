@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         display: ['Bricolage Grotesque', 'sans-serif'],
-        body: ['Satoshi', 'Plus Jakarta Sans', 'sans-serif'],
+        body: ['Figtree', 'sans-serif'],
       },
       colors: {
         border: "oklch(var(--border))",
@@ -77,11 +77,9 @@ export default {
           ring: "oklch(var(--sidebar-ring))",
         },
         neon: {
-          purple: "oklch(0.75 0.28 300)",
-          cyan: "oklch(0.85 0.22 200)",
-          green: "oklch(0.78 0.22 145)",
-          orange: "oklch(0.78 0.22 60)",
-          red: "oklch(0.65 0.24 25)",
+          purple: "oklch(57% 0.28 295)",
+          cyan: "oklch(84% 0.19 200)",
+          pink: "oklch(68% 0.26 330)",
         }
       },
       borderRadius: {
@@ -92,9 +90,9 @@ export default {
       boxShadow: {
         card: "0 2px 16px 0 oklch(0 0 0 / 0.4)",
         elevated: "0 8px 32px -4px oklch(0 0 0 / 0.5)",
-        "glow-purple": "0 0 20px oklch(0.65 0.28 300 / 0.5), 0 0 60px oklch(0.65 0.28 300 / 0.2)",
-        "glow-cyan": "0 0 20px oklch(0.78 0.22 200 / 0.5), 0 0 60px oklch(0.78 0.22 200 / 0.2)",
-        "glow-green": "0 0 20px oklch(0.72 0.22 145 / 0.5), 0 0 60px oklch(0.72 0.22 145 / 0.2)",
+        "glow-purple": "0 0 20px oklch(57% 0.28 295 / 0.5), 0 0 60px oklch(57% 0.28 295 / 0.2)",
+        "glow-cyan": "0 0 20px oklch(84% 0.19 200 / 0.5), 0 0 60px oklch(84% 0.19 200 / 0.2)",
+        "glow-pink": "0 0 15px oklch(68% 0.26 330 / 0.5)",
       },
       keyframes: {
         "accordion-down": {
